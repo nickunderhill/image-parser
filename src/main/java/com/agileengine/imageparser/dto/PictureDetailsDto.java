@@ -3,8 +3,6 @@ package com.agileengine.imageparser.dto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.StringJoiner;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PictureDetailsDto {
 
@@ -79,17 +77,5 @@ public class PictureDetailsDto {
     @JsonProperty("full_picture")
     public void setFullPicture(String fullPicture) {
         this.fullPicture = fullPicture;
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", PictureDetailsDto.class.getSimpleName() + "[", "]")
-                .add("id='" + id + "'")
-                .add("author='" + author + "'")
-                .add("camera='" + camera + "'")
-                .add("tags='" + tags + "'")
-                .add("croppedPicture='" + croppedPicture + "'")
-                .add("fullPicture='" + fullPicture + "'")
-                .toString();
     }
 }

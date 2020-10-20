@@ -1,5 +1,6 @@
 package com.agileengine.imageparser.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 
@@ -10,6 +11,7 @@ import java.util.StringJoiner;
 
 @Entity
 @Indexed
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Picture {
 
     @Id

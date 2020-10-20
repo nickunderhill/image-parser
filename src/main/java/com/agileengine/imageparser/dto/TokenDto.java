@@ -1,9 +1,5 @@
 package com.agileengine.imageparser.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.StringJoiner;
-
 public class TokenDto {
 
     private boolean auth;
@@ -26,13 +22,5 @@ public class TokenDto {
 
     public void setToken(String token) {
         this.token = token;
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", TokenDto.class.getSimpleName() + "[", "]")
-                .add("auth=" + auth)
-                .add("token='" + token + "'")
-                .toString();
     }
 }

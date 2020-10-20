@@ -8,7 +8,6 @@ import com.agileengine.imageparser.repository.PictureRepository;
 import com.agileengine.imageparser.service.ParsingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -38,47 +37,25 @@ public class AgileEngineApiParsingService implements ParsingService {
         persistParsedPicturesToDb(pictureList);
     }
 
-    @Scheduled(initialDelayString = "${parsingFrequencyMilliseconds}", fixedRateString = "${parsingFrequencyMilliseconds}")
-    public void scheduledParseTask() {
-        log.info("Starting scheduled data update...");
-        List<Picture> pictureList = parseAllPictures();
-        persistParsedPicturesToDb(pictureList);
-    }
-
     @Override
     public List<Picture> parseAllPictures() {
         log.info("Parsing pictures from API...");
-        List<String> pictureIdList = parsePictureIdsFromAllPages();
-
-        log.info("Parsing details for {} pictures...", pictureIdList.size());
-        return pictureIdList.stream()
-                .map(id -> dtoEntityConverter.dtoToEntity(api.fetchResponseByPictureId(id)))
-                .collect(Collectors.toList());
-    }
-
-    public List<String> parsePictureIdsFromAllPages() {
         int currentPage = 1;
         PageDto page = api.fetchResponseByPageNumber(currentPage);
 
         log.info("Parsing picture ids from {} pages...", page.getPageCount());
-        List<String> pictureIds = page.getPictures()
-                .stream()
-                .map(PictureDto::getId)
-                .collect(Collectors.toList()
-                );
+        List<String> pictureIds = page.getPictures().stream().map(PictureDto::getId).collect(Collectors.toList());
 
         while (page.getHasMore()) {
-            pictureIds.addAll(page.getPictures().stream()
-                    .map(PictureDto::getId)
-                    .collect(Collectors.toList())
-            );
-
             page = api.fetchResponseByPageNumber(++currentPage);
+            pictureIds.addAll(page.getPictures().stream().map(PictureDto::getId).collect(Collectors.toList()));
         }
-
         log.info("{} picture ids retrieved!", pictureIds.size());
 
-        return pictureIds;
+        log.info("Parsing details for {} pictures...", pictureIds.size());
+        return pictureIds.stream()
+                .map(id -> dtoEntityConverter.dtoToEntity(api.fetchResponseByPictureId(id)))
+                .collect(Collectors.toList());
     }
 
     public void persistParsedPicturesToDb(List<Picture> pictures) {

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
-import java.util.StringJoiner;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PageDto {
@@ -56,15 +55,5 @@ public class PageDto {
     @JsonProperty("hasMore")
     public void setHasMore(Boolean hasMore) {
         this.hasMore = hasMore;
-    }
-
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", PageDto.class.getSimpleName() + "[", "]")
-                .add("pictures=[" + pictures.size() +" objects")
-                .add("page=" + page)
-                .add("pageCount=" + pageCount)
-                .add("hasMore=" + hasMore)
-                .toString();
     }
 }

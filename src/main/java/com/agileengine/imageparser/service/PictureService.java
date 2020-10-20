@@ -9,4 +9,6 @@ public interface PictureService {
     List<Picture> searchPicturesByMetadata(String searchTerm);
 
     List<Picture> getAll();
+
+    Picture getPictureDetails(String id);
 }

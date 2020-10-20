@@ -24,7 +24,7 @@ public class PictureServiceImpl implements PictureService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    PictureRepository pictureRepository;
+    private final PictureRepository pictureRepository;
 
     public PictureServiceImpl(PictureRepository pictureRepository) {
         this.pictureRepository = pictureRepository;
@@ -51,6 +51,11 @@ public class PictureServiceImpl implements PictureService {
     @Override
     public List<Picture> getAll() {
         return pictureRepository.findAll();
+    }
+
+    @Override
+    public Picture getPictureDetails(String id) {
+        return pictureRepository.getOne(id);
     }
 
     private FullTextQuery getJpaQuery(org.apache.lucene.search.Query luceneQuery) {

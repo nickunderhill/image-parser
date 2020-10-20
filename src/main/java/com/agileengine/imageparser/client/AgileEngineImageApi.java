@@ -23,6 +23,7 @@ public class AgileEngineImageApi {
     private final static String API_PATH_AUTH = "/auth";
     private final static String API_PATH_IMAGES = "/images";
     private final static String API_PARAM_PAGE = "?page=";
+
     private final RestTemplate restTemplate;
     private static TokenDto tokenDto = null;
 
@@ -31,9 +32,13 @@ public class AgileEngineImageApi {
     }
 
     @PostConstruct
-    public void getToken() {
-        String constructUrl = API_BASE_URL + API_PATH_AUTH;
+    private void init() {
+        getToken();
+    }
+
+    private void getToken() {
         log.info("Obtaining API token...");
+        String constructUrl = API_BASE_URL + API_PATH_AUTH;
         Map<String, String> map = new HashMap<>();
         map.put("apiKey", API_KEY);
         ResponseEntity<TokenDto> auth = restTemplate.postForEntity(API_BASE_URL + API_PATH_AUTH, map, TokenDto.class);
@@ -43,6 +48,7 @@ public class AgileEngineImageApi {
     }
 
     public PageDto fetchResponseByPageNumber(Integer pageNumber) {
+        if (!tokenDto.isAuth()) getToken();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(tokenDto.getToken());
         String constructUrl = API_BASE_URL + API_PATH_IMAGES + API_PARAM_PAGE + pageNumber;
@@ -57,10 +63,10 @@ public class AgileEngineImageApi {
             log.error("API call failed: [status code: {}, url: {}]", page.getStatusCode(), constructUrl);
         }
         return page.getBody();
-        //TODO Handle errors nicely
     }
 
     public PictureDetailsDto fetchResponseByPictureId(String id) {
+        if (!tokenDto.isAuth()) getToken();
         String constructUrl = API_BASE_URL + API_PATH_IMAGES + "/" + id;
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(tokenDto.getToken());
