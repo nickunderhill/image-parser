@@ -4,10 +4,9 @@ import com.agileengine.imageparser.domain.Picture;
 
 import java.util.List;
 
-public interface ParsingService {
+public interface PictureService {
 
-    void init();
+    List<Picture> searchPicturesByMetadata(String searchTerm);
 
-    List<Picture> parseAllPictures();
-
+    List<Picture> getAll();
 }

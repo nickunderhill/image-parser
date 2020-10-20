@@ -12,7 +12,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +19,7 @@ import java.util.stream.Collectors;
 public class AgileEngineApiParsingService implements ParsingService {
 
     private static final Logger log = LoggerFactory.getLogger(AgileEngineApiParsingService.class);
+
     private final AgileEngineImageApi api;
     private final PictureRepository pictureRepository;
     private final PictureDtoEntityConverterService dtoEntityConverter;
@@ -31,39 +31,61 @@ public class AgileEngineApiParsingService implements ParsingService {
     }
 
     @PostConstruct
-    private void init() {
+    @Override
+    public void init() {
         log.info("Parsing API on startup...");
-        parseAll();
+        List<Picture> pictureList = parseAllPictures();
+        persistParsedPicturesToDb(pictureList);
     }
 
     @Scheduled(initialDelayString = "${parsingFrequencyMilliseconds}", fixedRateString = "${parsingFrequencyMilliseconds}")
-    public void scheduleFixedDelayTask() {
+    public void scheduledParseTask() {
         log.info("Starting scheduled data update...");
-        parseAll();
+        List<Picture> pictureList = parseAllPictures();
+        persistParsedPicturesToDb(pictureList);
     }
 
     @Override
-    public void parseAll() {
+    public List<Picture> parseAllPictures() {
+        log.info("Parsing pictures from API...");
+        List<String> pictureIdList = parsePictureIdsFromAllPages();
+
+        log.info("Parsing details for {} pictures...", pictureIdList.size());
+        return pictureIdList.stream()
+                .map(id -> dtoEntityConverter.dtoToEntity(api.fetchResponseByPictureId(id)))
+                .collect(Collectors.toList());
+    }
+
+    public List<String> parsePictureIdsFromAllPages() {
         int currentPage = 1;
         PageDto page = api.fetchResponseByPageNumber(currentPage);
-        log.info("Parsing all data. Total pages: {}...", page.getPageCount());
-        if (page.getPictures().size() > 0) {
-            List<PictureDto> pictureDtos = new ArrayList<>(page.getPictures());
-            while (page.getHasMore()) {
-                page = api.fetchResponseByPageNumber(++currentPage);
-                pictureDtos.addAll(new ArrayList<>(page.getPictures()));
-            }
-            log.info("{} pictures fetched! Parsing picture details...", pictureDtos.size());
-            List<Picture> pictures =  new ArrayList<>();
-            for (PictureDto pictureDto:pictureDtos) {
-                pictures.add(dtoEntityConverter.dtoToEntity(api.fetchResponseByPictureId(pictureDto.getId())));
-            }
-            long deltaEntries = pictureRepository.count();
-            pictureRepository.saveAll(pictures);
-            deltaEntries = pictureRepository.count() - deltaEntries;
-            log.info("{} new pictures added to the database", deltaEntries);
-        } else {
-            log.info("Nothing to save.");
+
+        log.info("Parsing picture ids from {} pages...", page.getPageCount());
+        List<String> pictureIds = page.getPictures()
+                .stream()
+                .map(PictureDto::getId)
+                .collect(Collectors.toList()
+                );
+
+        while (page.getHasMore()) {
+            pictureIds.addAll(page.getPictures().stream()
+                    .map(PictureDto::getId)
+                    .collect(Collectors.toList())
+            );
+
+            page = api.fetchResponseByPageNumber(++currentPage);
         }
+
+        log.info("{} picture ids retrieved!", pictureIds.size());
+
+        return pictureIds;
+    }
+
+    public void persistParsedPicturesToDb(List<Picture> pictures) {
+        log.info("Persisting fetched pictures to database...");
+        long deltaEntries = pictureRepository.count();
+        pictureRepository.saveAll(pictures);
+        deltaEntries = pictureRepository.count() - deltaEntries;
+        log.info("{} new pictures added to the database", deltaEntries);
     }
 }

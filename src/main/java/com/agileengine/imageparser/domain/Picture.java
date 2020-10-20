@@ -1,19 +1,27 @@
 package com.agileengine.imageparser.domain;
 
+import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.Indexed;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import java.util.StringJoiner;
 
 @Entity
+@Indexed
 public class Picture {
 
     @Id
     private String id;
 
+    @Field
     private String author;
 
+    @Field
     private String camera;
 
+    @Field
     private String tags;
 
     @Column(name = "cropped_picture")
@@ -71,5 +79,17 @@ public class Picture {
 
     public void setFullPicture(String fullPicture) {
         this.fullPicture = fullPicture;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", Picture.class.getSimpleName() + "[", "]")
+                .add("id='" + id + "'")
+                .add("author='" + author + "'")
+                .add("camera='" + camera + "'")
+                .add("tags='" + tags + "'")
+                .add("croppedPicture='" + croppedPicture + "'")
+                .add("fullPicture='" + fullPicture + "'")
+                .toString();
     }
 }
