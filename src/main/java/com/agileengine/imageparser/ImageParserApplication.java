@@ -29,8 +29,8 @@ public class ImageParserApplication implements CommandLineRunner {
 	public void run(String... args) {
 		log.info("==================================================");
 		log.info("====================App started===================");
-		log.info("External API parsing frequency: {}ms}", env.getProperty("parsing.frequency.time.milliseconds"));
-		log.info("Cache TTL: {}ms}", env.getProperty("cache.time-to-live.milliseconds"));
+		log.info("External API parsing frequency: {}ms", env.getProperty("parsing.frequency.time.milliseconds"));
+		log.info("Cache TTL: {}ms", env.getProperty("cache.time-to-live.milliseconds"));
 		log.info("==================================================");
 	}
 
