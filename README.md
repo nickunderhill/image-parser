@@ -45,12 +45,15 @@ Or just double-click the file ``image-parser-0.0.1-SNAPSHOT.jar`` (just wait a w
 After running  **App** application you may follow to http://localhost:8080/api/images to see it in action
 
 ## Configuration:
-Parsing frequency and cache TTL are set to 1 minute by default. The properties can be changed in `application.properties` 
-file in corresponding fields:
+Parsing frequency and cache TTL are set to 1 minute by default. The properties can be configured on start-up: 
 
-`parsing.frequency.time.milliseconds=60000`
+```shell
+# Set parsing frequency to 10 minutes: 
+java -jar target/image-parser-0.0.1-SNAPSHOT.jar --parsing.frequency.time.milliseconds=600000
 
-`cache.time-to-live=60000`
+# Set cache TTL to 5 minutes:
+java -jar target/image-parser-0.0.1-SNAPSHOT.jar --cache.time-to-live=300000
+```
 
 ## Available routes:
 
